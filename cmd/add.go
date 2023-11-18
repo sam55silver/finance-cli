@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/sam55silver/finance-cli/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -37,8 +39,17 @@ func init() {
 }
 
 func call(cmd *cobra.Command, args []string) {
-	fmt.Println("Args:")
-	for _, arg := range args {
-		fmt.Println(arg)
+	db := lib.DBConnect("./finance.db")
+	defer db.Close()
+
+	id := db.CreateCategory("food")
+	fmt.Println("Created Food category, id:", id)
+
+	db.PrintCategory()
+
+	id, err := db.GetCategoryID("food")
+	if err != nil {
+		log.Fatalln("No food category!", err)
 	}
+	fmt.Println("Get Food category id:", id)
 }
