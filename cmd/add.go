@@ -39,17 +39,31 @@ func init() {
 }
 
 func call(cmd *cobra.Command, args []string) {
+	if len(args) < 2 {
+		log.Fatalln("No noun. usage: category, transactions")
+	}
+
 	db := lib.DBConnect("./finance.db")
 	defer db.Close()
 
-	id := db.CreateCategory("food")
-	fmt.Println("Created Food category, id:", id)
+	noun := args[0]
 
-	db.PrintCategory()
+	if noun == "category" {
+		for i := 1; i < len(args); i++ {
+			id := db.CreateCategory(args[i])
+			fmt.Println("Created Food category, id:", id)
+		}
+	} else if noun == "transactions" {
+		var input string
+		for {
+			fmt.Print("Enter transaction: ")
+			fmt.Scan(&input)
 
-	id, err := db.GetCategoryID("food")
-	if err != nil {
-		log.Fatalln("No food category!", err)
+			if input == "stop" {
+				break
+			} else {
+				fmt.Println("You entered,", input)
+			}
+		}
 	}
-	fmt.Println("Get Food category id:", id)
 }
