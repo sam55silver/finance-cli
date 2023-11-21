@@ -21,16 +21,10 @@ func DBConnect(fileName string) *sqliteStore {
 	createMainTables := `
 	create table if not exists category (
 		id INTEGER PRIMARY KEY, 
-		name varchar(50) 
+		name varchar(50) not null 
 	);
-	create table if not exists transactions (
-		id INTEGER PRIMARY KEY,
-	    	amount decimal(10, 2),
-		date date,
-		category_id int,
-		foreign key (category_id) references category(id)
-	);
-	`
+	` + GetTransactionTable()
+
 	_, err = db.Exec(createMainTables)
 	if err != nil {
 		log.Fatalln("Could not create main tables, error:", err)
@@ -70,6 +64,16 @@ func (s *sqliteStore) CreateCategory(name string) int {
 	}
 
 	return int(categoryID)
+}
+
+func (s *sqliteStore) AddTransaction(transaciton Transaction) error {
+	query := "INSERT INTO transaction (catergory_id, amount, title) VALUES (?, ?, ?)"
+	_, err := s.db.Exec(query, transaciton.CategoryID, transaciton.Amount, transaciton.Title)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *sqliteStore) PrintCategory() {
